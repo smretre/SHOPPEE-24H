@@ -45,24 +45,17 @@ const mineradorHandler = async (event) => {
 
 async function buscarOfertasEmAlta() {
     const timestamp = Math.floor(Date.now() / 1000);
-    const query = `{
-        getItemList(keyword: "oferta", page: 1, pageSize: 5) {
-            nodes {
-                item_name
-                item_url
-                price
-                item_rating
-                image_url 
-            }
-        }
-    }`;
+    // REMOVIDO ESPAÇOS E QUEBRAS DE LINHA
+    const query = `{getItemList(keyword:"oferta",page:1,pageSize:5){nodes{item_name,item_url,price,item_rating,image_url}}}`;
 
     const signature = gerarAssinatura(query, timestamp);
+    
     const res = await axios.post("https://open-api.affiliate.shopee.com.br/graphql", 
         { query }, 
         { headers: { 'Authorization': `SHA256 AppID=${APP_ID}, Timestamp=${timestamp}, Signature=${signature}` } }
     );
 
+    console.log("Resposta API Shopee:", JSON.stringify(res.data)); // Adicione este log para debugar
     return res.data?.data?.getItemList?.nodes || [];
 }
 
