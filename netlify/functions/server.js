@@ -46,7 +46,7 @@ const mineradorHandler = async (event) => {
 async function buscarOfertasEmAlta() {
     const timestamp = Math.floor(Date.now() / 1000);
     const query = `{
-        getItemList(page: 1, pageSize: 10) {
+        getItemList(page: 1, pageSize: 5, region: "BR") {
             nodes {
                 item_name
                 item_url
