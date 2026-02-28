@@ -77,7 +77,7 @@ async function converterParaAfiliado(url) {
 
 function gerarAssinatura(payload, ts) {
     // Forçamos tudo a ser String para evitar erros de cálculo
-    const authString = String(APP_ID) + String(ts) + String(payload) + String(APP_SECRET);
+    const authString = String(APP_ID) + String(ts) + String(APP_SECRET) + String(payload);
     
     return crypto
         .createHash('sha256')
