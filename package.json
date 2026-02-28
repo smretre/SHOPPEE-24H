@@ -1,0 +1,26 @@
+{
+  "name": "bot-shopee-minerador-2026",
+  "version": "1.0.0",
+  "description": "Automação profissional de ofertas Shopee para Telegram via Netlify Functions",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "shopee",
+    "affiliate",
+    "bot",
+    "telegram",
+    "automation"
+  ],
+  "author": "Afiliado Elite",
+  "license": "ISC",
+  "dependencies": {
+    "@netlify/functions": "^2.6.0",
+    "axios": "^1.6.7",
+    "crypto": "^1.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
