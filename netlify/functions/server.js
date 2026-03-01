@@ -45,18 +45,49 @@ const mineradorHandler = async (event) => {
 
 async function buscarOfertasEmAlta() {
     const timestamp = Math.floor(Date.now() / 1000);
-    // REMOVIDO ESPAÇOS E QUEBRAS DE LINHA
-    const query = `{getItemList(keyword:"oferta",page:1,pageSize:5){nodes{item_name,item_url,price,item_rating,image_url}}}`;
-
-    const signature = gerarAssinatura(query, timestamp);
     
-    const res = await axios.post("https://open-api.affiliate.shopee.com.br/graphql", 
-        { query }, 
-        { headers: { 'Authorization': `SHA256 AppID=${APP_ID}, Timestamp=${timestamp}, Signature=${signature}` } }
-    );
+    // 1. O Payload precisa ser um objeto JSON stringificado e sem espaços
+    const queryObj = {
+        query: "query{productOfferV2(listType:0,sortType:2,page:0,limit:5){nodes{productName,productLink,price,imageUrl,commissionRate}}}",
+        variables: null,
+        operationName: null
+    };
+    
+    const payload = JSON.stringify(queryObj);
 
-    console.log("Resposta API Shopee:", JSON.stringify(res.data)); // Adicione este log para debugar
-    return res.data?.data?.getItemList?.nodes || [];
+    // 2. Gerar assinatura com o JSON completo
+    const signature = crypto.createHash('sha256')
+        .update(APP_ID + timestamp + payload + APP_SECRET)
+        .digest('hex');
+
+    try {
+        const res = await axios.post("https://open-api.affiliate.shopee.com.br/graphql", 
+            queryObj, 
+            { 
+                headers: { 
+                    'Content-Type': 'application/json',
+                    // ATENÇÃO: Mudamos de AppID= para Credential=
+                    'Authorization': `SHA256 Credential=${APP_ID}, Timestamp=${timestamp}, Signature=${signature}` 
+                } 
+            }
+        );
+
+        console.log("Resposta Shopee:", JSON.stringify(res.data));
+        
+        // Ajuste dos nomes dos campos conforme o productOfferV2
+        const nodes = res.data?.data?.productOfferV2?.nodes || [];
+        return nodes.map(n => ({
+            item_name: n.productName,
+            item_url: n.productLink,
+            price: n.price,
+            image_url: n.imageUrl,
+            item_rating: 5 // Campo fixo pois o V2 às vezes não retorna rating direto
+        }));
+
+    } catch (error) {
+        console.error("Erro na API:", error.response?.data || error.message);
+        return [];
+    }
 }
 
 async function converterParaAfiliado(url) {
