@@ -25,7 +25,7 @@ const mineradorHandler = async (event) => {
             
             const legenda = 
                 `📦 **${item.item_name}**\n\n` +
-                `💰 **Preço: R$ ${(item.price / 100).toFixed(2)}**\n` +
+                `💰 **Preço: R$ ${(item.price / 1).toFixed(2)}**\n` +
                 `⭐ Avaliação: ${item.item_rating.toFixed(1)} / 5.0\n\n` +
                 `🔥 *Oferta por tempo limitado!*\n\n` +
                 `🛒 **COMPRE AQUI:** ${linkCurto}`;
