@@ -25,8 +25,8 @@ const mineradorHandler = async (event) => {
             const precoFormatado = Number(item.price).toFixed(2).replace('.', ',');
             
             const legenda = 
-                `📦 **${item.item_name}**\n\n` +
-                `💰 **Preço: R$ ${precoFormatado}**\n` +
+                ` **${item.item_name}**\n\n` +
+                `💰 **Por: R$ ${precoFormatado}**\n\n` +
                 `⭐ Avaliação: ${item.item_rating.toFixed(1)} / 5.0\n\n` +
                 `🔥 *Oferta por tempo limitado!*\n\n` +
                 `🛒 **COMPRE AQUI:** ${linkCurto}`;
