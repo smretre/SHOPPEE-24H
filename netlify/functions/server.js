@@ -29,7 +29,7 @@ const mineradorHandler = async (event) => {
                 `💰 **Por: R$ ${precoFormatado}**\n\n` +
                 `⭐ Avaliação: ${item.item_rating.toFixed(1)} / 5.0\n\n` +
                 `🔥 *Oferta por tempo limitado!*\n\n` +
-                `🛒 **COMPRE AQUI:** ${linkCurto}`;
+                `🛒 <a href="${linkCurto}" target="_blank"><strong>COMPRE AQUI</strong></a>`;
 
             await enviarTelegramComFoto(item.image_url, legenda);
             await new Promise(resolve => setTimeout(resolve, 3000));
