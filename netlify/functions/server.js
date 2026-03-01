@@ -107,13 +107,8 @@ async function converterParaAfiliado(url) {
 }
 
 function gerarAssinatura(payload, ts) {
-    // Forçamos tudo a ser String para evitar erros de cálculo
-    const authString = String(APP_ID) + String(ts) + String(APP_SECRET) + String(payload);
-    
-    return crypto
-        .createHash('sha256')
-        .update(authString)
-        .digest('hex');
+    // Agora o payload já vem como string do JSON.stringify
+    return crypto.createHash('sha256').update(APP_ID + ts + payload + APP_SECRET).digest('hex');
 }
 
 async function enviarTelegramComFoto(urlImagem, legenda) {
