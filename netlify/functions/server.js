@@ -92,16 +92,26 @@ async function buscarOfertasEmAlta() {
 
 async function converterParaAfiliado(url) {
     const timestamp = Math.floor(Date.now() / 1000);
-    const query = `mutation { generateShortLink(input: { originUrl: "${url}" }) { shortLink } }`;
-    const signature = gerarAssinatura(query, timestamp);
+    // Ajustado para o padrão de linha única e JSON
+    const queryObj = {
+        query: `mutation{generateShortLink(input:{originUrl:"${url}"}){shortLink}}`,
+        variables: null,
+        operationName: null
+    };
+    
+    const payload = JSON.stringify(queryObj);
+    const signature = crypto.createHash('sha256').update(APP_ID + timestamp + payload + APP_SECRET).digest('hex');
 
     try {
-        const res = await axios.post("https://open-api.affiliate.shopee.com.br/graphql", 
-            { query }, 
-            { headers: { 'Authorization': `SHA256 AppID=${APP_ID}, Timestamp=${timestamp}, Signature=${signature}` } }
-        );
+        const res = await axios.post("https://open-api.affiliate.shopee.com.br/graphql", queryObj, { 
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `SHA256 Credential=${APP_ID}, Timestamp=${timestamp}, Signature=${signature}` 
+            } 
+        });
         return res.data?.data?.generateShortLink?.shortLink || url;
     } catch (e) {
+        console.error("Erro na conversão:", e.message);
         return url;
     }
 }
