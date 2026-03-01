@@ -80,7 +80,8 @@ async function buscarOfertasEmAlta() {
         return nodes.map(n => ({
             item_name: n.productName,
             item_url: n.productLink,
-            price: n.price,
+            price: parseFloat(n.price),
+            old_price: parseFloat(n.priceBeforeDiscount || n.price),
             image_url: n.imageUrl,
             item_rating: 5 // Campo fixo pois o V2 às vezes não retorna rating direto
         }));
