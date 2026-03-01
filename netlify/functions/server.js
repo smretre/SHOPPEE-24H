@@ -25,11 +25,11 @@ const mineradorHandler = async (event) => {
             const precoFormatado = Number(item.price).toFixed(2).replace('.', ',');
             let blocoPreco = `💰 **Preço: R$ ${precoAtual}**`;
             if (item.old_price > item.price) {
-                blocoPreco = `❌ De: ~~R$ ${precoAntigo}~~\n✅ **Por: R$ ${precoAtual}**`;
+                blocoPreco = `❌ De: ~~R$ ${precoAntigo}~~\n\n✅ **Por: R$ ${precoAtual}**`;
             
             const legenda = 
                 ` **${item.item_name}**\n\n` +
-                `💰 **Por: R$ ${precoFormatado}**\n\n` +
+                `${blocoPreco}\n\n` +
                 `⭐ Avaliação: ${item.item_rating.toFixed(1)} / 5.0\n\n` +
                 `🔥 *Oferta por tempo limitado!*\n\n` +
                 `🛒 [COMPRE AQUI](${linkCurto})`;
