@@ -54,7 +54,7 @@ async function buscarOfertasEmAlta() {
     
     // 1. O Payload precisa ser um objeto JSON stringificado e sem espaços
     const queryObj = {
-        query: "query{productOfferV2(listType:0,sortType:2,page:0,limit:5){nodes{productName,productLink,price,originalPrice,imageUrl,commissionRate}}}",
+        query: "query{productOfferV2(listType:0,sortType:2,page:0,limit:5){nodes{productName,productLink,price,priceMax,imageUrl,commissionRate}}}",
         variables: null,
         operationName: null
     };
@@ -86,7 +86,7 @@ async function buscarOfertasEmAlta() {
             item_name: n.productName,
             item_url: n.productLink,
             price: parseFloat(n.price),
-            old_price: parseFloat(n.originalPrice || n.price),
+            old_price: parseFloat(n.priceMax || n.price),
             image_url: n.imageUrl,
             item_rating: 5 // Campo fixo pois o V2 às vezes não retorna rating direto
         }));
