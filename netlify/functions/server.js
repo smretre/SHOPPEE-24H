@@ -11,6 +11,19 @@ const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 // Função principal que o Cron executa
 const mineradorHandler = async (event) => {
     try {
+        const agora = new Date();
+        // Ajuste para Brasília (UTC-3). 
+        // Se o servidor estiver em UTC, subtraímos 3 horas.
+        const horaBrasilia = agora.getUTCHours() - 3;
+        const horaReal = horaBrasilia < 0 ? horaBrasilia + 24 : horaBrasilia;
+
+        console.log(`Verificando horário: ${horaReal}h`);
+
+        // Para entre 23h e 06:59h
+        if (horaReal >= 23 || horaReal < 7) {
+            console.log("Horário de silêncio. Encerrando para economizar requisições.");
+            return { statusCode: 200, body: "Robô em modo de descanso." };
+        }
         console.log("Iniciando mineração com imagens...");
 
         const ofertas = await buscarOfertasEmAlta();
@@ -25,7 +38,7 @@ const mineradorHandler = async (event) => {
             const precoFormatado = Number(item.price).toFixed(2).replace('.', ',');
             const precoAtual = Number(item.price).toFixed(2).replace('.', ',');
             const precoAntigo = Number(item.old_price).toFixed(2).replace('.', ',');
-            let blocoPreco = `💰 **Preço: R$ ${precoAtual}**`;
+            let blocoPreco = `✅ **Por: R$ ${precoAtual}**`;
             if (item.old_price > item.price) {
                 blocoPreco = `❌ De: ~~R$ ${precoAntigo}~~\n\n✅ **Por: R$ ${precoAtual}**`;}
             
