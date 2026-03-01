@@ -128,7 +128,7 @@ async function enviarTelegramComFoto(urlImagem, legenda) {
         chat_id: TELEGRAM_CHAT_ID,
         photo: urlImagem,
         caption: legenda,
-        parse_mode: "Markdown"
+        parse_mode: "HTML"
     });
 }
 
