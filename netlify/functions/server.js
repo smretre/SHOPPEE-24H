@@ -49,7 +49,7 @@ async function buscarOfertasEmAlta() {
     
     // 1. O Payload precisa ser um objeto JSON stringificado e sem espaços
     const queryObj = {
-        query: "query{productOfferV2(listType:0,sortType:2,page:0,limit:5){nodes{productName,productLink,price,imageUrl,commissionRate}}}",
+        query: "query{productOfferV2(listType:0,sortType:2,page:0,limit:5){nodes{productName,productLink,price,priceBeforeDiscount,imageUrl,commissionRate}}}",
         variables: null,
         operationName: null
     };
