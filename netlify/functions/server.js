@@ -22,6 +22,7 @@ const mineradorHandler = async (event) => {
 
         for (const item of ofertas.slice(0, 3)) {
             const linkCurto = await converterParaAfiliado(item.item_url);
+            const precoFormatado = Number(item.price).toFixed(2).replace('.', ',');
             
             const legenda = 
                 `📦 **${item.item_name}**\n\n` +
