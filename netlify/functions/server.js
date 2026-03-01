@@ -40,7 +40,7 @@ const mineradorHandler = async (event) => {
             const precoAntigo = Number(item.old_price).toFixed(2).replace('.', ',');
             let blocoPreco = `✅ **Por: R$ ${precoAtual}**`;
             if (item.old_price > item.price) {
-                blocoPreco = `❌ De: ~~R$ ${precoAntigo}~~\n\n✅ **Por: R$ ${precoAtual}**`;}
+                blocoPreco = `❌ De:  R$ ${precoAntigo}\n\n✅ **Por: R$ ${precoAtual}**`;}
             
             const legenda = 
                 ` **${item.item_name}**\n\n` +
