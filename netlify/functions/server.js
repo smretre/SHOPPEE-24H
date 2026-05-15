@@ -146,7 +146,7 @@ async function enviarTelegramComFoto(urlImagem, legenda,linkCurto) {
         chat_id: TELEGRAM_CHAT_ID,
         photo: urlImagem,
         caption: legenda,
-        parse_mode: "Markdown"
+        parse_mode: "Markdown",
         reply_markup: {
           inline_keyboard: [
             [
