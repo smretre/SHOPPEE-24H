@@ -46,10 +46,9 @@ const mineradorHandler = async (event) => {
                 ` **${item.item_name}**\n\n` +
                 `${blocoPreco}\n\n` +
                 `⭐ Avaliação: ${item.item_rating.toFixed(1)} / 5.0\n\n` +
-                `🔥 *Oferta por tempo limitado!*\n\n` +
-                `🛒 [COMPRE AQUI](${linkCurto})`;
+                `🔥 *Oferta por tempo limitado!*\n`;
 
-            await enviarTelegramComFoto(item.image_url, legenda);
+            await enviarTelegramComFoto(item.image_url, legenda,linkCurto);
             await new Promise(resolve => setTimeout(resolve, 3000));
         }
 
@@ -141,15 +140,25 @@ function gerarAssinatura(payload, ts) {
     return crypto.createHash('sha256').update(APP_ID + ts + payload + APP_SECRET).digest('hex');
 }
 
-async function enviarTelegramComFoto(urlImagem, legenda) {
+async function enviarTelegramComFoto(urlImagem, legenda,linkCurto) {
     const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`;
     await axios.post(url, {
         chat_id: TELEGRAM_CHAT_ID,
         photo: urlImagem,
         caption: legenda,
         parse_mode: "Markdown"
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "🔥COMPRAR AGORA",
+                url: linkCurto
+              }
+            ]
+          ]
+        }
     });
-}
+  }
 
 // Exportação obrigatória para o agendamento da Netlify
 module.exports.handler = schedule("0 * * * *", mineradorHandler);
