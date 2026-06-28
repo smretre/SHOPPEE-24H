@@ -64,9 +64,14 @@ const mineradorHandler = async (event) => {
 async function buscarOfertasEmAlta() {
     const timestamp = Math.floor(Date.now() / 1000);
     
+    // Gera um número de página aleatório entre 0 e 10 para rotacionar as ofertas
+    const paginaAleatoria = Math.floor(Math.random() * 11);
+    console.log(`Buscando produtos na página: ${paginaAleatoria}`);
+
     // 1. O Payload precisa ser um objeto JSON stringificado e sem espaços
+    // Trocamos as aspas duplas por crases (`) para injetar a variável ${paginaAleatoria}
     const queryObj = {
-        query: "query{productOfferV2(listType:0,sortType:2,page:0,limit:5){nodes{productName,productLink,price,priceMax,imageUrl,commissionRate}}}",
+        query: `query{productOfferV2(listType:0,sortType:2,page:${paginaAleatoria},limit:5){nodes{productName,productLink,price,priceMax,imageUrl,commissionRate}}}`,
         variables: null,
         operationName: null
     };
@@ -107,7 +112,8 @@ async function buscarOfertasEmAlta() {
         console.error("Erro na API:", error.response?.data || error.message);
         return [];
     }
-}
+  }
+    
 
 async function converterParaAfiliado(url) {
     const timestamp = Math.floor(Date.now() / 1000);
