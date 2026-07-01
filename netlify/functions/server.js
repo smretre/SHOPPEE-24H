@@ -151,4 +151,4 @@ async function enviarTelegramComFoto(urlImagem, legenda,linkCurto) {
   }
 
 // Exportação obrigatória para o agendamento da Netlify
-module.exports.handler = schedule("* * * * *", mineradorHandler);
+module.exports.handler = schedule("0 * * * *", mineradorHandler);
