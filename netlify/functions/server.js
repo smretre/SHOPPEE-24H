@@ -71,7 +71,7 @@ async function buscarOfertasEmAlta() {
     // 1. O Payload precisa ser um objeto JSON stringificado e sem espaços
     // Trocamos as aspas duplas por crases (`) para injetar a variável ${paginaAleatoria}
     const queryObj = {
-        query: `query{productOfferV2(listType:6,sortType:3,page:${paginaAleatoria},limit:20){nodes{productName,productLink,price,priceMax,imageUrl,commissionRate}}}`,
+        query: `query{productOfferV2(listType:0,sortType:3,page:${paginaAleatoria},limit:10){nodes{productName,productLink,price,priceMax,imageUrl,commissionRate}}}`,
         variables: null,
         operationName: null
     };
@@ -167,5 +167,5 @@ async function enviarTelegramComFoto(urlImagem, legenda,linkCurto) {
   }
 
 // Exportação obrigatória para o agendamento da Netlify
-module.exports.handler = schedule("0 * * * *", mineradorHandler);
+module.exports.handler = schedule("* * * * *", mineradorHandler);
         
