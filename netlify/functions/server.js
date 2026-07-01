@@ -1,4 +1,3 @@
-
 const { schedule } = require('@netlify/functions');
 const axios = require('axios');
 const crypto = require('crypto');
