@@ -68,7 +68,7 @@ async function buscarOfertasEmAlta() {
     console.log(`Buscando produtos via String na página: ${paginaAleatoria}`);
 
     // Montamos a query em uma única linha de texto puro, sem quebras de linha e sem espaços extras
-    const queryLimpa = `query{productOfferV2(listType:0,sortType:2,page:${paginaAleatoria},limit:20){nodes{productName,productLink,price,priceMax,imageUrl,commissionRate}}}`;
+    const queryLimpa = `query{productOfferV2(listType:0,sortType:2,page:${paginaAleatoria},limit:10){nodes{productName,productLink,price,priceMax,imageUrl,commissionRate}}}`;
 
     const queryObj = {
         query: queryLimpa,
