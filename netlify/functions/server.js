@@ -1,4 +1,4 @@
-Const { schedule } = require('@netlify/functions');
+const { schedule } = require('@netlify/functions');
 const axios = require('axios');
 const crypto = require('crypto');
 
@@ -151,4 +151,4 @@ async function enviarTelegramComFoto(urlImagem, legenda,linkCurto) {
   }
 
 // Exportação obrigatória para o agendamento da Netlify
-module.exports.handler = schedule("0 * * * *", mineradorHandler);
+module.exports.handler = schedule("* * * * *", mineradorHandler);
