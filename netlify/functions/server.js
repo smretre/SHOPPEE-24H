@@ -63,23 +63,20 @@ const mineradorHandler = async (event) => {
 async function buscarOfertasEmAlta() {
     const timestamp = Math.floor(Date.now() / 1000);
     
-    // Sorteia a página de 0 a 10
-    const paginaAleatoria = Math.floor(Math.random() * 11);
-    console.log(`Buscando produtos via String na página: ${paginaAleatoria}`);
+    // Lista de termos populares para o robô sortear a cada hora
+    const termos = ["eletronicos", "relogio", "fone bluetooth", "casa", "organizador", "promocao", "cozinha", "gamer"];
+    const termoSorteado = termos[Math.floor(Math.random() * termos.length)];
+    
+    console.log(`Buscando produtos reais com a palavra-chave: ${termoSorteado}`);
 
-    // Montamos a query em uma única linha de texto puro, sem quebras de linha e sem espaços extras
-    const queryLimpa = `query{productOfferV2(listType:0,sortType:2,page:${paginaAleatoria},limit:10){nodes{productName,productLink,price,priceMax,imageUrl,commissionRate}}}`;
-
+    // Mudamos radicalmente a rota de 'productOfferV2' para 'productOffer' com palavra-chave (keyword)
     const queryObj = {
-        query: queryLimpa,
+        query: `query{productOffer(keyword:"${termoSorteado}",page:1,limit:30){nodes{productName,productLink,price,priceMax,imageUrl}}}`,
         variables: null,
         operationName: null
     };
     
-    // Transforma em JSON string puro
     const payload = JSON.stringify(queryObj);
-
-    // Gera a assinatura de segurança baseada no texto exato acima
     const signature = crypto.createHash('sha256')
         .update(APP_ID + timestamp + payload + APP_SECRET)
         .digest('hex');
@@ -95,15 +92,10 @@ async function buscarOfertasEmAlta() {
             }
         );
 
-        console.log("Resposta Shopee:", JSON.stringify(res.data));
+        console.log("Resposta Shopee Recalibrada com Sucesso.");
         
-        // Pega as ofertas devolvidas pela Shopee
-        const nodes = res.data?.data?.productOfferV2?.nodes || [];
-        
-        if (nodes.length === 0) {
-            console.log("A Shopee respondeu com sucesso, mas a lista de produtos veio vazia.");
-        }
-
+        // Mapeia a resposta da rota tradicional 'productOffer'
+        const nodes = res.data?.data?.productOffer?.nodes || [];
         return nodes.map(n => ({
             item_name: n.productName,
             item_url: n.productLink,
@@ -114,10 +106,10 @@ async function buscarOfertasEmAlta() {
         }));
 
     } catch (error) {
-        console.error("Erro crítico na API:", error.response?.data || error.message);
+        console.error("Erro na API da Shopee:", error.response?.data || error.message);
         return [];
     }
-}
+}        
 async function converterParaAfiliado(url) {
     const timestamp = Math.floor(Date.now() / 1000);
     // Ajustado para o padrão de linha única e JSON
