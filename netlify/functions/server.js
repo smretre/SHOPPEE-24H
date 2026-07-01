@@ -63,22 +63,23 @@ const mineradorHandler = async (event) => {
 async function buscarOfertasEmAlta() {
     const timestamp = Math.floor(Date.now() / 1000);
     
-    // Gera a página aleatória (de 0 a 10)
+    // Sorteia a página de 0 a 10
     const paginaAleatoria = Math.floor(Math.random() * 11);
-    console.log(`Buscando produtos de forma dinâmica na página: ${paginaAleatoria}`);
+    console.log(`Buscando produtos via String na página: ${paginaAleatoria}`);
 
-    // CORREÇÃO: Declaramos a variável ($page: Int) e usamos no parâmetro page: $page
+    // Montamos a query em uma única linha de texto puro, sem quebras de linha e sem espaços extras
+    const queryLimpa = `query{productOfferV2(listType:0,sortType:2,page:${paginaAleatoria},limit:20){nodes{productName,productLink,price,priceMax,imageUrl,commissionRate}}}`;
+
     const queryObj = {
-        query: "query($page: Int){productOfferV2(listType:0,sortType:2,page:$page,limit:20){nodes{productName,productLink,price,priceMax,imageUrl,commissionRate}}}",
-        variables: {
-            page: paginaAleatoria
-        },
+        query: queryLimpa,
+        variables: null,
         operationName: null
     };
     
-    // Agora o JSON stringificado vai perfeito e sem gambiarras de string
+    // Transforma em JSON string puro
     const payload = JSON.stringify(queryObj);
 
+    // Gera a assinatura de segurança baseada no texto exato acima
     const signature = crypto.createHash('sha256')
         .update(APP_ID + timestamp + payload + APP_SECRET)
         .digest('hex');
@@ -96,7 +97,13 @@ async function buscarOfertasEmAlta() {
 
         console.log("Resposta Shopee:", JSON.stringify(res.data));
         
+        // Pega as ofertas devolvidas pela Shopee
         const nodes = res.data?.data?.productOfferV2?.nodes || [];
+        
+        if (nodes.length === 0) {
+            console.log("A Shopee respondeu com sucesso, mas a lista de produtos veio vazia.");
+        }
+
         return nodes.map(n => ({
             item_name: n.productName,
             item_url: n.productLink,
@@ -107,12 +114,10 @@ async function buscarOfertasEmAlta() {
         }));
 
     } catch (error) {
-        console.error("Erro na API:", error.response?.data || error.message);
+        console.error("Erro crítico na API:", error.response?.data || error.message);
         return [];
     }
 }
-
-
 async function converterParaAfiliado(url) {
     const timestamp = Math.floor(Date.now() / 1000);
     // Ajustado para o padrão de linha única e JSON
