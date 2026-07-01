@@ -61,24 +61,27 @@ const mineradorHandler = async (event) => {
 
 // --- Funções de API ---
 
+
+        query: `query{productOfferV2(listType:0,sortType:2,page:${paginaAleatoria},limit:20){nodes{productName,productLink,price,priceMax,imageUrl,commissionRate}}}`,
 async function buscarOfertasEmAlta() {
     const timestamp = Math.floor(Date.now() / 1000);
     
-    // Gera um número de página aleatório entre 0 e 10 para rotacionar as ofertas
+    // Gera a página aleatória (de 0 a 10)
     const paginaAleatoria = Math.floor(Math.random() * 11);
-    console.log(`Buscando produtos na página: ${paginaAleatoria}`);
+    console.log(`Buscando produtos de forma dinâmica na página: ${paginaAleatoria}`);
 
-    // 1. O Payload precisa ser um objeto JSON stringificado e sem espaços
-    // Trocamos as aspas duplas por crases (`) para injetar a variável ${paginaAleatoria}
+    // CORREÇÃO: Declaramos a variável ($page: Int) e usamos no parâmetro page: $page
     const queryObj = {
-        query: `query{productOfferV2(listType:0,sortType:0,page:${paginaAleatoria},limit:8){nodes{productName,productLink,price,priceMax,imageUrl,commissionRate}}}`,
-        variables: null,
+        query: "query($page: Int){productOfferV2(listType:0,sortType:2,page:$page,limit:20){nodes{productName,productLink,price,priceMax,imageUrl,commissionRate}}}",
+        variables: {
+            page: paginaAleatoria
+        },
         operationName: null
     };
     
+    // Agora o JSON stringificado vai perfeito e sem gambiarras de string
     const payload = JSON.stringify(queryObj);
 
-    // 2. Gerar assinatura com o JSON completo
     const signature = crypto.createHash('sha256')
         .update(APP_ID + timestamp + payload + APP_SECRET)
         .digest('hex');
@@ -89,7 +92,6 @@ async function buscarOfertasEmAlta() {
             { 
                 headers: { 
                     'Content-Type': 'application/json',
-                    // ATENÇÃO: Mudamos de AppID= para Credential=
                     'Authorization': `SHA256 Credential=${APP_ID}, Timestamp=${timestamp}, Signature=${signature}` 
                 } 
             }
@@ -97,7 +99,6 @@ async function buscarOfertasEmAlta() {
 
         console.log("Resposta Shopee:", JSON.stringify(res.data));
         
-        // Ajuste dos nomes dos campos conforme o productOfferV2
         const nodes = res.data?.data?.productOfferV2?.nodes || [];
         return nodes.map(n => ({
             item_name: n.productName,
@@ -105,15 +106,15 @@ async function buscarOfertasEmAlta() {
             price: parseFloat(n.price),
             old_price: parseFloat(n.priceMax || n.price),
             image_url: n.imageUrl,
-            item_rating: 5 // Campo fixo pois o V2 às vezes não retorna rating direto
+            item_rating: 5
         }));
 
     } catch (error) {
         console.error("Erro na API:", error.response?.data || error.message);
         return [];
     }
-  }
-    
+}
+
 
 async function converterParaAfiliado(url) {
     const timestamp = Math.floor(Date.now() / 1000);
