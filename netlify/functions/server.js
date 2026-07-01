@@ -60,9 +60,6 @@ const mineradorHandler = async (event) => {
 };
 
 // --- Funções de API ---
-
-
-        query: `query{productOfferV2(listType:0,sortType:2,page:${paginaAleatoria},limit:20){nodes{productName,productLink,price,priceMax,imageUrl,commissionRate}}}`,
 async function buscarOfertasEmAlta() {
     const timestamp = Math.floor(Date.now() / 1000);
     
