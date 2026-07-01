@@ -63,20 +63,21 @@ const mineradorHandler = async (event) => {
 async function buscarOfertasEmAlta() {
     const timestamp = Math.floor(Date.now() / 1000);
     
-    // Lista de termos populares para o robô sortear a cada hora
-    const termos = ["eletronicos", "relogio", "fone bluetooth", "casa", "organizador", "promocao", "cozinha", "gamer"];
-    const termoSorteado = termos[Math.floor(Math.random() * termos.length)];
-    
-    console.log(`Buscando produtos reais com a palavra-chave: ${termoSorteado}`);
+    // Gera um número de página aleatório entre 0 e 10 para rotacionar as ofertas
+    const paginaAleatoria = Math.floor(Math.random() * 11);
+    console.log(`Buscando produtos na página: ${paginaAleatoria}`);
 
-    // Mudamos radicalmente a rota de 'productOfferV2' para 'productOffer' com palavra-chave (keyword)
+    // 1. O Payload precisa ser um objeto JSON stringificado e sem espaços
+    // Trocamos as aspas duplas por crases (`) para injetar a variável ${paginaAleatoria}
     const queryObj = {
-        query: `query{productOffer(keyword:"${termoSorteado}",page:1,limit:30){nodes{productName,productLink,price,priceMax,imageUrl}}}`,
+        query: `query{productOfferV2(listType:0,sortType:3,page:${paginaAleatoria},limit:5){nodes{productName,productLink,price,priceMax,imageUrl,commissionRate}}}`,
         variables: null,
         operationName: null
     };
     
     const payload = JSON.stringify(queryObj);
+
+    // 2. Gerar assinatura com o JSON completo
     const signature = crypto.createHash('sha256')
         .update(APP_ID + timestamp + payload + APP_SECRET)
         .digest('hex');
@@ -87,29 +88,30 @@ async function buscarOfertasEmAlta() {
             { 
                 headers: { 
                     'Content-Type': 'application/json',
+                    // ATENÇÃO: Mudamos de AppID= para Credential=
                     'Authorization': `SHA256 Credential=${APP_ID}, Timestamp=${timestamp}, Signature=${signature}` 
                 } 
             }
         );
 
-        console.log("Resposta Shopee Recalibrada com Sucesso.");
+        console.log("Resposta Shopee:", JSON.stringify(res.data));
         
-        // Mapeia a resposta da rota tradicional 'productOffer'
-        const nodes = res.data?.data?.productOffer?.nodes || [];
+        // Ajuste dos nomes dos campos conforme o productOfferV2
+        const nodes = res.data?.data?.productOfferV2?.nodes || [];
         return nodes.map(n => ({
             item_name: n.productName,
             item_url: n.productLink,
             price: parseFloat(n.price),
             old_price: parseFloat(n.priceMax || n.price),
             image_url: n.imageUrl,
-            item_rating: 5
+            item_rating: 5 // Campo fixo pois o V2 às vezes não retorna rating direto
         }));
 
     } catch (error) {
-        console.error("Erro na API da Shopee:", error.response?.data || error.message);
+        console.error("Erro na API:", error.response?.data || error.message);
         return [];
     }
-}        
+}
 async function converterParaAfiliado(url) {
     const timestamp = Math.floor(Date.now() / 1000);
     // Ajustado para o padrão de linha única e JSON
