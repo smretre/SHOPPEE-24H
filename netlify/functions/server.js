@@ -71,7 +71,7 @@ async function buscarOfertasEmAlta() {
     // 1. O Payload precisa ser um objeto JSON stringificado e sem espaços
     // Trocamos as aspas duplas por crases (`) para injetar a variável ${paginaAleatoria}
     const queryObj = {
-        query: `query{productOfferV2(listType:3,sortType:3,page:${paginaAleatoria},limit:15){nodes{productName,productLink,price,priceMax,imageUrl,commissionRate}}}`,
+        query: `query{productOfferV2(listType:0,sortType:0,page:${paginaAleatoria},limit:8){nodes{productName,productLink,price,priceMax,imageUrl,commissionRate}}}`,
         variables: null,
         operationName: null
     };
