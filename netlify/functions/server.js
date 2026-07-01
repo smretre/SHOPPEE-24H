@@ -103,11 +103,6 @@ async function buscarOfertasEmAlta() {
     }
 }
 
-async function gerarAssinatura(payload, ts) {
-    // Agora o payload já vem como string do JSON.stringify
-    return crypto.createHash('sha256').update(APP_ID + ts + payload + APP_SECRET).digest('hex');
-}
-
 async function enviarTelegramComFoto(urlImagem, legenda,linkCurto) {
     const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`;
     await axios.post(url, {
