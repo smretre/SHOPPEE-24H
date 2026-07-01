@@ -63,14 +63,9 @@ const mineradorHandler = async (event) => {
 async function buscarOfertasEmAlta() {
     const timestamp = Math.floor(Date.now() / 1000);
     
-    // Gera um número de página aleatório entre 0 e 10 para rotacionar as ofertas
-    const paginaAleatoria = Math.floor(Math.random() * 11);
-    console.log(`Buscando produtos na página: ${paginaAleatoria}`);
-
     // 1. O Payload precisa ser um objeto JSON stringificado e sem espaços
-    // Trocamos as aspas duplas por crases (`) para injetar a variável ${paginaAleatoria}
     const queryObj = {
-        query: `query{productOfferV2(listType:0,sortType:3,page:${paginaAleatoria},limit:5){nodes{productName,productLink,price,priceMax,imageUrl,commissionRate}}}`,
+        query: "query{productOfferV2(listType:0,sortType:2,page:0,limit:5){nodes{productName,productLink,price,priceMax,imageUrl,commissionRate}}}",
         variables: null,
         operationName: null
     };
@@ -95,46 +90,16 @@ async function buscarOfertasEmAlta() {
         );
 
         console.log("Resposta Shopee:", JSON.stringify(res.data));
-        
-        // Ajuste dos nomes dos campos conforme o productOfferV2
         const nodes = res.data?.data?.productOfferV2?.nodes || [];
         return nodes.map(n => ({
             item_name: n.productName,
             item_url: n.productLink,
             price: parseFloat(n.price),
-            old_price: parseFloat(n.priceMax || n.price),
-            image_url: n.imageUrl,
-            item_rating: 5 // Campo fixo pois o V2 às vezes não retorna rating direto
+            image_url: n.imageUrl
         }));
-
     } catch (error) {
-        console.error("Erro na API:", error.response?.data || error.message);
+        console.error("Erro na busca da Shopee:", error.message);
         return [];
-    }
-}
-async function converterParaAfiliado(url) {
-    const timestamp = Math.floor(Date.now() / 1000);
-    // Ajustado para o padrão de linha única e JSON
-    const queryObj = {
-        query: `mutation{generateShortLink(input:{originUrl:"${url}"}){shortLink}}`,
-        variables: null,
-        operationName: null
-    };
-    
-    const payload = JSON.stringify(queryObj);
-    const signature = crypto.createHash('sha256').update(APP_ID + timestamp + payload + APP_SECRET).digest('hex');
-
-    try {
-        const res = await axios.post("https://open-api.affiliate.shopee.com.br/graphql", queryObj, { 
-            headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `SHA256 Credential=${APP_ID}, Timestamp=${timestamp}, Signature=${signature}` 
-            } 
-        });
-        return res.data?.data?.generateShortLink?.shortLink || url;
-    } catch (e) {
-        console.error("Erro na conversão:", e.message);
-        return url;
     }
 }
 
