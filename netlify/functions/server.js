@@ -75,9 +75,9 @@ async function buscarOfertasEmAlta() {
         "achadinhos",
         "tecnologia",
         "moda",
-        "camisa"
-        "seleção"
-        "kit upgrade"
+        "camisa",
+        "seleção",
+        "kit upgrade",
         "ferramentas"
     ];   
     const termoSorteado = temas[Math.floor(Math.random() * temas.length)];
