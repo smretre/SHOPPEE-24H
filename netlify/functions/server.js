@@ -63,16 +63,41 @@ const mineradorHandler = async (event) => {
 async function buscarOfertasEmAlta() {
     const timestamp = Math.floor(Date.now() / 1000);
     
-    // 1. O Payload precisa ser um objeto JSON stringificado e sem espaços
+    // BANCO DE TEMAS: O robô vai sortear um assunto diferente a cada hora
+    // Isso garante que o seu canal tenha variedade extrema e nunca repita os mesmos itens!
+    const temas = [
+        "eletronicos", 
+        "relogio inteligente", 
+        "fone bluetooth", 
+        "casa e cozinha", 
+        "organizador", 
+        "acessorios celular", 
+        "setup gamer", 
+        "achadinhos",
+        "tecnologia",
+        "moda",
+        "camisa"
+        "seleção"
+        "kit upgrade"
+        "ferramentas"
+    ];
+    
+    // Sorteia um termo da lista acima
+    const termoSorteado = temas[Math.floor(Math.random() * temas.length)];
+    console.log(`[Shopee] Fugindo do cache! Buscando produtos em tempo real para: "${termoSorteado}"`);
+
+    // Mudamos radicalmente para a rota 'productOffer' baseada em palavra-chave (keyword)
+    // Deixamos a página como 1 (estável) e puxamos 20 itens para termos um bom estoque
     const queryObj = {
-        query: "query{productOfferV2(listType:0,sortType:2,page:0,limit:5){nodes{productName,productLink,price,priceMax,imageUrl,commissionRate}}}",
+        query: `query{productOffer(keyword:"${termoSorteado}",page:1,limit:20){nodes{productName,productLink,price,priceMax,imageUrl}}}`,
         variables: null,
         operationName: null
     };
     
+    // Transforma o objeto em texto puro para a assinatura de segurança
     const payload = JSON.stringify(queryObj);
 
-    // 2. Gerar assinatura com o JSON completo
+    // Gerar assinatura idêntica ao que a Shopee exige
     const signature = crypto.createHash('sha256')
         .update(APP_ID + timestamp + payload + APP_SECRET)
         .digest('hex');
@@ -83,27 +108,33 @@ async function buscarOfertasEmAlta() {
             { 
                 headers: { 
                     'Content-Type': 'application/json',
-                    // ATENÇÃO: Mudamos de AppID= para Credential=
                     'Authorization': `SHA256 Credential=${APP_ID}, Timestamp=${timestamp}, Signature=${signature}` 
                 } 
             }
         );
 
-        console.log("Resposta Shopee:", JSON.stringify(res.data));
+        console.log("Resposta Shopee Recalibrada com Sucesso.");
         
-        // Ajuste dos nomes dos campos conforme o productOfferV2
-        const nodes = res.data?.data?.productOfferV2?.nodes || [];
+        // ATENÇÃO: Mudamos o mapeamento aqui de 'productOfferV2' para 'productOffer'
+        const nodes = res.data?.data?.productOffer?.nodes || [];
+        
+        if (nodes.length === 0) {
+            console.log(`Aviso: A busca por "${termoSorteado}" não retornou produtos.`);
+            return [];
+        }
+
+        // Mapeia os dados mantendo a exata estrutura que o seu loop do Telegram espera receber
         return nodes.map(n => ({
             item_name: n.productName,
             item_url: n.productLink,
             price: parseFloat(n.price),
             old_price: parseFloat(n.priceMax || n.price),
             image_url: n.imageUrl,
-            item_rating: 5 // Campo fixo pois o V2 às vezes não retorna rating direto
+            item_rating: 5 // Mantido fixo para não quebrar o .toFixed(1) do seu loop
         }));
 
     } catch (error) {
-        console.error("Erro na API:", error.response?.data || error.message);
+        console.error("Erro na Nova API da Shopee:", error.response?.data || error.message);
         return [];
     }
 }
@@ -151,4 +182,4 @@ async function enviarTelegramComFoto(urlImagem, legenda,linkCurto) {
   }
 
 // Exportação obrigatória para o agendamento da Netlify
-module.exports.handler = schedule("0 * * * *", mineradorHandler);
+module.exports.handler = schedule("* * * * *", mineradorHandler);
