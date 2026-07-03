@@ -63,8 +63,7 @@ const mineradorHandler = async (event) => {
 async function buscarOfertasEmAlta() {
     const timestamp = Math.floor(Date.now() / 1000);
     
-    // BANCO DE TEMAS: O robô vai sortear um assunto diferente a cada hora
-    // Isso garante que o seu canal tenha variedade extrema e nunca repita os mesmos itens!
+    // Lista de termos fixos (adicione ou remova os que preferir)
     const temas = [
         "eletronicos", 
         "relogio inteligente", 
@@ -80,24 +79,22 @@ async function buscarOfertasEmAlta() {
         "seleção"
         "kit upgrade"
         "ferramentas"
-    ];
-    
-    // Sorteia um termo da lista acima
+    ];   
     const termoSorteado = temas[Math.floor(Math.random() * temas.length)];
-    console.log(`[Shopee] Fugindo do cache! Buscando produtos em tempo real para: "${termoSorteado}"`);
+    console.log(`[Shopee] Buscando com segurança via variáveis para: "${termoSorteado}"`);
 
-    // Mudamos radicalmente para a rota 'productOffer' baseada em palavra-chave (keyword)
-    // Deixamos a página como 1 (estável) e puxamos 20 itens para termos um bom estoque
+    // CORREÇÃO CRÍTICA: Definimos a query fixa e usamos a variável ($keyword: String) do GraphQL
     const queryObj = {
-        query: `query{productOffer(keyword:"${termoSorteado}",page:1,limit:20){nodes{productName,productLink,price,priceMax,imageUrl}}}`,
-        variables: null,
+        query: "query($keyword: String){productOffer(keyword:$keyword,page:1,limit:20){nodes{productName,productLink,price,priceMax,imageUrl}}}",
+        variables: {
+            keyword: termoSorteado // O termo vai aqui dentro de forma limpa, sem quebrar a assinatura
+        },
         operationName: null
     };
     
-    // Transforma o objeto em texto puro para a assinatura de segurança
+    // Agora o JSON fica perfeito e padronizado para gerar o Hash SHA256 idêntico ao da Shopee
     const payload = JSON.stringify(queryObj);
 
-    // Gerar assinatura idêntica ao que a Shopee exige
     const signature = crypto.createHash('sha256')
         .update(APP_ID + timestamp + payload + APP_SECRET)
         .digest('hex');
@@ -113,31 +110,28 @@ async function buscarOfertasEmAlta() {
             }
         );
 
-        console.log("Resposta Shopee Recalibrada com Sucesso.");
+        console.log("Resposta Shopee (Acessada):", JSON.stringify(res.data));
         
-        // ATENÇÃO: Mudamos o mapeamento aqui de 'productOfferV2' para 'productOffer'
         const nodes = res.data?.data?.productOffer?.nodes || [];
         
         if (nodes.length === 0) {
-            console.log(`Aviso: A busca por "${termoSorteado}" não retornou produtos.`);
-            return [];
+            console.log(`A API aceitou, mas retornou 0 produtos para: "${termoSorteado}"`);
         }
 
-        // Mapeia os dados mantendo a exata estrutura que o seu loop do Telegram espera receber
         return nodes.map(n => ({
             item_name: n.productName,
             item_url: n.productLink,
             price: parseFloat(n.price),
             old_price: parseFloat(n.priceMax || n.price),
             image_url: n.imageUrl,
-            item_rating: 5 // Mantido fixo para não quebrar o .toFixed(1) do seu loop
+            item_rating: 5
         }));
 
     } catch (error) {
-        console.error("Erro na Nova API da Shopee:", error.response?.data || error.message);
+        console.error("Erro na Requisição da Shopee:", error.response?.data || error.message);
         return [];
     }
-}
+ }
 async function converterParaAfiliado(url) {
     const timestamp = Math.floor(Date.now() / 1000);
     const queryObj = {
