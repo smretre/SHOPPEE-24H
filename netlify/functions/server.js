@@ -13,6 +13,7 @@ const mineradorHandler = async (event) => {
     try {
         const agora = new Date();
         // Ajuste para Brasília (UTC-3). 
+        // Se o servidor estiver em UTC, subtraímos 3 horas.
         const horaBrasilia = agora.getUTCHours() - 3;
         const horaReal = horaBrasilia < 0 ? horaBrasilia + 24 : horaBrasilia;
 
@@ -32,45 +33,22 @@ const mineradorHandler = async (event) => {
             return { statusCode: 200 };
         }
 
-        // EMBARALHAMENTO SEGURO: Mistura as 20 ofertas recebidas para evitar postar na mesma sequência
-        const ofertasEmbaralhadas = ofertas.sort(() => Math.random() - 0.5);
-
-        for (const item of ofertasEmbaralhadas.slice(0, 3)) {
-            if (!item.item_url) continue;
-
-            // Obtém o link convertido
-            let linkCurto = await converterParaAfiliado(item.item_url);
-            
-            // AJUSTE DE SEGURANÇA: Se o link encurtado falhar, usa o link original para não quebrar o Telegram
-            if (!linkCurto || typeof linkCurto !== 'string' || !linkCurto.startsWith('http')) {
-                linkCurto = item.item_url;
-            }
-
-            const precoAtual = item.price ? Number(item.price).toFixed(2).replace('.', ',') : "0,00";
-            const precoAntigo = item.old_price ? Number(item.old_price).toFixed(2).replace('.', ',') : precoAtual;
-            const rating = item.item_rating ? Number(item.item_rating).toFixed(1) : "5.0";
-
+        for (const item of ofertas.slice(0, 3)) {
+            const linkCurto = await converterParaAfiliado(item.item_url);
+            const precoFormatado = Number(item.price).toFixed(2).replace('.', ',');
+            const precoAtual = Number(item.price).toFixed(2).replace('.', ',');
+            const precoAntigo = Number(item.old_price).toFixed(2).replace('.', ',');
             let blocoPreco = `✅ **Por: R$ ${precoAtual}**`;
-            if (item.old_price && item.old_price > item.price) {
-                blocoPreco = `❌ De:  R$ ${precoAntigo}\n\n✅ **Por: R$ ${precoAtual}**`;
-            }
+            if (item.old_price > item.price) {
+                blocoPreco = `❌ De:  R$ ${precoAntigo}\n\n✅ **Por: R$ ${precoAtual}**`;}
             
             const legenda = 
-                `📦 **${item.item_name || 'Produto Especial'}**\n\n` +
+                ` **${item.item_name}**\n\n` +
                 `${blocoPreco}\n\n` +
-                `⭐ Avaliação: ${rating} / 5.0\n\n` +
+                `⭐ Avaliação: ${item.item_rating.toFixed(1)} / 5.0\n\n` +
                 `🔥 *Oferta por tempo limitado!*\n`;
 
-            if (item.image_url) {
-                try {
-                    await enviarTelegramComFoto(item.image_url, legenda, linkCurto);
-                    console.log(`[Telegram] Postado com sucesso: ${item.item_name?.substring(0, 25)}...`);
-                } catch (telegramErr) {
-                    console.error("[Telegram] Erro ao enviar este produto:", telegramErr.message);
-                }
-            }
-            
-            // Delay de 3 segundos entre posts para o Telegram não dar block por spam
+            await enviarTelegramComFoto(item.image_url, legenda,linkCurto);
             await new Promise(resolve => setTimeout(resolve, 3000));
         }
 
@@ -85,23 +63,38 @@ const mineradorHandler = async (event) => {
 async function buscarOfertasEmAlta() {
     const timestamp = Math.floor(Date.now() / 1000);
     
+    // Lista de termos fixos (adicione ou remova os que preferir)
     const temas = [
-        "eletronicos", "relogio inteligente", "fone bluetooth", "casa e cozinha", 
-        "organizador", "acessorios celular", "setup gamer", "achadinhos",
-        "tecnologia", "moda", "camisa", "seleção", "kit upgrade", "ferramentas"
+        "eletronicos", 
+        "relogio inteligente", 
+        "fone bluetooth", 
+        "casa e cozinha", 
+        "organizador", 
+        "acessorios celular", 
+        "setup gamer", 
+        "achadinhos",
+        "tecnologia",
+        "moda",
+        "camisa",
+        "seleção",
+        "kit upgrade",
+        "ferramentas"
     ];   
     const termoSorteado = temas[Math.floor(Math.random() * temas.length)];
     console.log(`[Shopee] Buscando com segurança via variáveis para: "${termoSorteado}"`);
 
+    // CORREÇÃO CRÍTICA: Definimos a query fixa e usamos a variável ($keyword: String) do GraphQL
     const queryObj = {
         query: "query($keyword: String){productOffer(keyword:$keyword,page:1,limit:20){nodes{productName,productLink,price,priceMax,imageUrl}}}",
         variables: {
-            keyword: termoSorteado
+            keyword: termoSorteado // O termo vai aqui dentro de forma limpa, sem quebrar a assinatura
         },
         operationName: null
     };
     
+    // Agora o JSON fica perfeito e padronizado para gerar o Hash SHA256 idêntico ao da Shopee
     const payload = JSON.stringify(queryObj);
+
     const signature = crypto.createHash('sha256')
         .update(APP_ID + timestamp + payload + APP_SECRET)
         .digest('hex');
@@ -117,7 +110,14 @@ async function buscarOfertasEmAlta() {
             }
         );
 
+        console.log("Resposta Shopee (Acessada):", JSON.stringify(res.data));
+        
         const nodes = res.data?.data?.productOffer?.nodes || [];
+        
+        if (nodes.length === 0) {
+            console.log(`A API aceitou, mas retornou 0 produtos para: "${termoSorteado}"`);
+        }
+
         return nodes.map(n => ({
             item_name: n.productName,
             item_url: n.productLink,
@@ -132,22 +132,16 @@ async function buscarOfertasEmAlta() {
         return [];
     }
 }
-
 async function converterParaAfiliado(url) {
     const timestamp = Math.floor(Date.now() / 1000);
-    
     const queryObj = {
-        query: "mutation($link: String!){generateShortLink(input:{originUrl:$link}){shortLink}}",
-        variables: {
-            link: url
-        },
+        query: `mutation{generateShortLink(input:{originUrl:"${url}"}){shortLink}}`,
+        variables: null,
         operationName: null
     };
     
     const payload = JSON.stringify(queryObj);
-    const signature = crypto.createHash('sha256')
-        .update(APP_ID + timestamp + payload + APP_SECRET)
-        .digest('hex');
+    const signature = crypto.createHash('sha256').update(APP_ID + timestamp + payload + APP_SECRET).digest('hex');
 
     try {
         const res = await axios.post("https://open-api.affiliate.shopee.com.br/graphql", queryObj, { 
@@ -156,20 +150,12 @@ async function converterParaAfiliado(url) {
                 'Authorization': `SHA256 Credential=${APP_ID}, Timestamp=${timestamp}, Signature=${signature}` 
             } 
         });
-        
-        if (res.data?.errors) {
-            console.error("[Shopee Link] Erro retornado pela API:", JSON.stringify(res.data.errors));
-            return url;
-        }
-
         return res.data?.data?.generateShortLink?.shortLink || url;
     } catch (e) {
-        console.error("[Shopee Link] Erro crítico na requisição de link:", e.message);
         return url;
     }
 }
-
-async function enviarTelegramComFoto(urlImagem, legenda, linkCurto) {
+async function enviarTelegramComFoto(urlImagem, legenda,linkCurto) {
     const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`;
     await axios.post(url, {
         chat_id: TELEGRAM_CHAT_ID,
@@ -180,15 +166,14 @@ async function enviarTelegramComFoto(urlImagem, legenda, linkCurto) {
           inline_keyboard: [
             [
               {
-                text: "🔥 COMPRAR AGORA",
+                text: "🔥COMPRAR AGORA",
                 url: linkCurto
               }
             ]
           ]
         }
     });
-}
+  }
 
-// AJUSTE IMPORTANTE: Mude para "*/30 * * * *" em produção para evitar bloqueios por excesso de chamadas na API da Shopee!
+// Exportação obrigatória para o agendamento da Netlify
 module.exports.handler = schedule("* * * * *", mineradorHandler);
-                
