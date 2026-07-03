@@ -19,7 +19,7 @@ const mineradorHandler = async (event) => {
         console.log(`Verificando horário: ${horaReal}h`);
 
         // Ajustado para pausar de verdade entre 23h e 06:59h
-        if (horaReal >= 23 || horaReal < 0) {
+        if (horaReal >= 23 || horaReal < 7) {
             console.log("Horário de silêncio. Encerrando para economizar requisições.");
             return { statusCode: 200, body: "Robô em modo de descanso." };
         }
@@ -191,5 +191,4 @@ async function enviarTelegramComFoto(urlImagem, legenda, linkCurto) {
 }
 
 // Exportação obrigatória para o agendamento da Netlify
-module.exports.handler = schedule("* * * * *", mineradorHandler);
-                                                    
+module.exports.handler = schedule("0 * * * *", mineradorHandler);                                                    
