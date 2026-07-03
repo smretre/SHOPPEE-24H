@@ -19,7 +19,7 @@ const mineradorHandler = async (event) => {
         console.log(`Verificando horário: ${horaReal}h`);
 
         // Para entre 23h e 06:59h
-        if (horaReal >= 23 || horaReal < 23) {
+        if (horaReal >= 23 || horaReal < 0) {
             console.log("Horário de silêncio. Encerrando para economizar requisições.");
             return { statusCode: 200, body: "Robô em modo de descanso." };
         }
