@@ -63,38 +63,16 @@ const mineradorHandler = async (event) => {
 async function buscarOfertasEmAlta() {
     const timestamp = Math.floor(Date.now() / 1000);
     
-    // Lista de termos fixos (adicione ou remova os que preferir)
-    const temas = [
-        "eletronicos", 
-        "relogio inteligente", 
-        "fone bluetooth", 
-        "casa e cozinha", 
-        "organizador", 
-        "acessorios celular", 
-        "setup gamer", 
-        "achadinhos",
-        "tecnologia",
-        "moda",
-        "camisa",
-        "seleção",
-        "kit upgrade",
-        "ferramentas"
-    ];   
-    const termoSorteado = temas[Math.floor(Math.random() * temas.length)];
-    console.log(`[Shopee] Buscando com segurança via variáveis para: "${termoSorteado}"`);
-
-    // CORREÇÃO CRÍTICA: Definimos a query fixa e usamos a variável ($keyword: String) do GraphQL
+    // 1. O Payload precisa ser um objeto JSON stringificado e sem espaços
     const queryObj = {
-        query: "query($keyword: String){productOffer(keyword:$keyword,page:1,limit:20){nodes{productName,productLink,price,priceMax,imageUrl}}}",
-        variables: {
-            keyword: termoSorteado // O termo vai aqui dentro de forma limpa, sem quebrar a assinatura
-        },
+        query: "query{productOfferV2(listType:0,sortType:2,page:0,limit:5){nodes{productName,productLink,price,priceMax,imageUrl,commissionRate}}}",
+        variables: null,
         operationName: null
     };
     
-    // Agora o JSON fica perfeito e padronizado para gerar o Hash SHA256 idêntico ao da Shopee
     const payload = JSON.stringify(queryObj);
 
+    // 2. Gerar assinatura com o JSON completo
     const signature = crypto.createHash('sha256')
         .update(APP_ID + timestamp + payload + APP_SECRET)
         .digest('hex');
@@ -105,43 +83,45 @@ async function buscarOfertasEmAlta() {
             { 
                 headers: { 
                     'Content-Type': 'application/json',
+                    // ATENÇÃO: Mudamos de AppID= para Credential=
                     'Authorization': `SHA256 Credential=${APP_ID}, Timestamp=${timestamp}, Signature=${signature}` 
                 } 
             }
         );
 
-        console.log("Resposta Shopee (Acessada):", JSON.stringify(res.data));
+        console.log("Resposta Shopee:", JSON.stringify(res.data));
         
-        const nodes = res.data?.data?.productOffer?.nodes || [];
-        
-        if (nodes.length === 0) {
-            console.log(`A API aceitou, mas retornou 0 produtos para: "${termoSorteado}"`);
-        }
-
+        // Ajuste dos nomes dos campos conforme o productOfferV2
+        const nodes = res.data?.data?.productOfferV2?.nodes || [];
         return nodes.map(n => ({
             item_name: n.productName,
             item_url: n.productLink,
             price: parseFloat(n.price),
             old_price: parseFloat(n.priceMax || n.price),
             image_url: n.imageUrl,
-            item_rating: 5
+            item_rating: 5 // Campo fixo pois o V2 às vezes não retorna rating direto
         }));
 
     } catch (error) {
-        console.error("Erro na Requisição da Shopee:", error.response?.data || error.message);
+        console.error("Erro na API:", error.response?.data || error.message);
         return [];
     }
 }
 async function converterParaAfiliado(url) {
     const timestamp = Math.floor(Date.now() / 1000);
+    
     const queryObj = {
-        query: `mutation{generateShortLink(input:{originUrl:"${url}"}){shortLink}}`,
-        variables: null,
+        query: "mutation($link: String!){generateShortLink(input:{originUrl:$link}){shortLink}}",
+        variables: {
+            link: url
+        },
         operationName: null
     };
     
     const payload = JSON.stringify(queryObj);
-    const signature = crypto.createHash('sha256').update(APP_ID + timestamp + payload + APP_SECRET).digest('hex');
+    const signature = crypto.createHash('sha256')
+        .update(APP_ID + timestamp + payload + APP_SECRET)
+        .digest('hex');
 
     try {
         const res = await axios.post("https://open-api.affiliate.shopee.com.br/graphql", queryObj, { 
@@ -150,8 +130,16 @@ async function converterParaAfiliado(url) {
                 'Authorization': `SHA256 Credential=${APP_ID}, Timestamp=${timestamp}, Signature=${signature}` 
             } 
         });
+        
+        // Se houver algum erro retornado dentro do JSON da Shopee, exibe no log para sabermos
+        if (res.data?.errors) {
+            console.error("[Shopee Link] Erro retornado pela API:", JSON.stringify(res.data.errors));
+            return url;
+        }
+
         return res.data?.data?.generateShortLink?.shortLink || url;
     } catch (e) {
+        console.error("[Shopee Link] Erro crítico na requisição de link:", e.message);
         return url;
     }
 }
