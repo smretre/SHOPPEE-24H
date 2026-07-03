@@ -88,7 +88,8 @@ async function buscarOfertasEmAlta() {
     const temas = [
         "eletronicos", "relogio inteligente", "fone bluetooth", "casa e cozinha", 
         "organizador", "acessorios celular", "setup gamer", "achadinhos",
-        "tecnologia", "moda", "camisa", "ferramentas"
+        "tecnologia", "moda", "kit camisa", "ferramentas", "tênis esportivo", "seleção",
+        "kit upgrade", "acessorios", "objetos", "pet", "peças"
     ];   
     const termoSorteado = temas[Math.floor(Math.random() * temas.length)];
     console.log(`[Shopee] Buscando ofertas para a palavra-chave: "${termoSorteado}"`);
