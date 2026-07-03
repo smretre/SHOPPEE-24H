@@ -110,6 +110,42 @@ async function buscarOfertasEmAlta() {
         return [];
     }
 }
+async function converterParaAfiliado(url) {
+    const timestamp = Math.floor(Date.now() / 1000);
+    
+    const queryObj = {
+        query: "mutation($link: String!){generateShortLink(input:{originUrl:$link}){shortLink}}",
+        variables: {
+            link: url
+        },
+        operationName: null
+    };
+    
+    const payload = JSON.stringify(queryObj);
+    const signature = crypto.createHash('sha256')
+        .update(APP_ID + timestamp + payload + APP_SECRET)
+        .digest('hex');
+
+    try {
+        const res = await axios.post("https://open-api.affiliate.shopee.com.br/graphql", queryObj, { 
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `SHA256 Credential=${APP_ID}, Timestamp=${timestamp}, Signature=${signature}` 
+            } 
+        });
+        
+        // Se houver algum erro retornado dentro do JSON da Shopee, exibe no log para sabermos
+        if (res.data?.errors) {
+            console.error("[Shopee Link] Erro retornado pela API:", JSON.stringify(res.data.errors));
+            return url;
+        }
+
+        return res.data?.data?.generateShortLink?.shortLink || url;
+    } catch (e) {
+        console.error("[Shopee Link] Erro crítico na requisição de link:", e.message);
+        return url;
+    }
+}
 async function enviarTelegramComFoto(urlImagem, legenda,linkCurto) {
     const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`;
     await axios.post(url, {
