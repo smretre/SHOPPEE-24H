@@ -63,38 +63,23 @@ const mineradorHandler = async (event) => {
 async function buscarOfertasEmAlta() {
     const timestamp = Math.floor(Date.now() / 1000);
     
-    // Lista de termos fixos (adicione ou remova os que preferir)
     const temas = [
-        "eletronicos", 
-        "relogio inteligente", 
-        "fone bluetooth", 
-        "casa e cozinha", 
-        "organizador", 
-        "acessorios celular", 
-        "setup gamer", 
-        "achadinhos",
-        "tecnologia",
-        "moda",
-        "camisa",
-        "seleção",
-        "kit upgrade",
-        "ferramentas"
+        "eletronicos", "relogio inteligente", "fone bluetooth", "casa e cozinha", 
+        "organizador", "acessorios celular", "setup gamer", "achadinhos",
+        "tecnologia", "moda", "camisa", "seleção", "kit upgrade", "ferramentas"
     ];   
     const termoSorteado = temas[Math.floor(Math.random() * temas.length)];
     console.log(`[Shopee] Buscando com segurança via variáveis para: "${termoSorteado}"`);
 
-    // CORREÇÃO CRÍTICA: Definimos a query fixa e usamos a variável ($keyword: String) do GraphQL
     const queryObj = {
         query: "query($keyword: String){productOffer(keyword:$keyword,page:1,limit:20){nodes{productName,productLink,price,priceMax,imageUrl}}}",
         variables: {
-            keyword: termoSorteado // O termo vai aqui dentro de forma limpa, sem quebrar a assinatura
+            keyword: termoSorteado
         },
         operationName: null
     };
     
-    // Agora o JSON fica perfeito e padronizado para gerar o Hash SHA256 idêntico ao da Shopee
     const payload = JSON.stringify(queryObj);
-
     const signature = crypto.createHash('sha256')
         .update(APP_ID + timestamp + payload + APP_SECRET)
         .digest('hex');
@@ -110,14 +95,7 @@ async function buscarOfertasEmAlta() {
             }
         );
 
-        console.log("Resposta Shopee (Acessada):", JSON.stringify(res.data));
-        
         const nodes = res.data?.data?.productOffer?.nodes || [];
-        
-        if (nodes.length === 0) {
-            console.log(`A API aceitou, mas retornou 0 produtos para: "${termoSorteado}"`);
-        }
-
         return nodes.map(n => ({
             item_name: n.productName,
             item_url: n.productLink,
@@ -131,30 +109,7 @@ async function buscarOfertasEmAlta() {
         console.error("Erro na Requisição da Shopee:", error.response?.data || error.message);
         return [];
     }
- }
-async function converterParaAfiliado(url) {
-    const timestamp = Math.floor(Date.now() / 1000);
-    const queryObj = {
-        query: `mutation{generateShortLink(input:{originUrl:"${url}"}){shortLink}}`,
-        variables: null,
-        operationName: null
-    };
-    
-    const payload = JSON.stringify(queryObj);
-    const signature = crypto.createHash('sha256').update(APP_ID + timestamp + payload + APP_SECRET).digest('hex');
-
-    try {
-        const res = await axios.post("https://open-api.affiliate.shopee.com.br/graphql", queryObj, { 
-            headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `SHA256 Credential=${APP_ID}, Timestamp=${timestamp}, Signature=${signature}` 
-            } 
-        });
-        return res.data?.data?.generateShortLink?.shortLink || url;
-    } catch (e) {
-        return url;
-    }
-  }
+}
 async function enviarTelegramComFoto(urlImagem, legenda,linkCurto) {
     const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`;
     await axios.post(url, {
