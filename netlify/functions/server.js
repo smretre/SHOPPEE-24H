@@ -36,7 +36,7 @@ const mineradorHandler = async (event) => {
         const ofertasMisturadas = ofertas.sort(() => Math.random() - 0.5);
 
         // Pega os 3 primeiros da lista que agora está totalmente misturada
-        for (const item of ofertasMisturadas.slice(0, 3)) {
+        for (const item of ofertasMisturadas.slice(0, 1)) {
             if (!item.item_url) continue;
 
             let linkCurto = await converterParaAfiliado(item.item_url);
@@ -86,10 +86,10 @@ async function buscarOfertasEmAlta() {
     
     // Lista de termos para rotacionar os nichos do canal de achadinhos
     const temas = [
-        "eletronicos", "relogio inteligente", "fone bluetooth", "casa e cozinha", 
-        "organizador", "acessorios celular", "setup gamer", "achadinhos",
-        "tecnologia", "moda", "kit camisa", "ferramentas", "tênis esportivo", "seleção",
-        "kit upgrade", "acessorios", "objetos", "pet", "peças"
+        "eletronicos", "relogio inteligente", "fone bluetooth", "cozinha", 
+        "organizador", "acessorios celular", "setup gamer", "achadinhos", "banheiro"
+        "tecnologia", "moda", "kit camisa", "ferramentas úteis", "tênis esportivo", "celulares",
+        "automóveis", "acessorios para casa", "objetos", "pet", "peças", "acessorios para veiculos"
     ];   
     const termoSorteado = temas[Math.floor(Math.random() * temas.length)];
     console.log(`[Shopee] Buscando ofertas para a palavra-chave: "${termoSorteado}"`);
@@ -192,4 +192,4 @@ async function enviarTelegramComFoto(urlImagem, legenda, linkCurto) {
 }
 
 // Exportação obrigatória para o agendamento da Netlify
-module.exports.handler = schedule("0 * * * *", mineradorHandler);                                                    
+module.exports.handler = schedule("0 */2 * * *", mineradorHandler);                                                    
