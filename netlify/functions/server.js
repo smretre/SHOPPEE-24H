@@ -57,7 +57,7 @@ const mineradorHandler = async (event) => {
             const legenda = 
                 ` **${item.item_name || 'Produto Especial'}**\n\n` +
                 `${blocoPreco}\n\n` +
-                `⭐ Avaliação: ${item.item_rating.toFixed(1)} / 5.0\n\n` +
+                `⭐ Avaliação: ${item.item_rating.toFixed(1)} / 4.8\n\n` +
                 `🔥 *Oferta por tempo limitado!*\n`;
 
             // Envia se houver imagem para evitar crash no Telegram
@@ -87,7 +87,7 @@ async function buscarOfertasEmAlta() {
     // Lista de termos para rotacionar os nichos do canal de achadinhos
     const temas = [
         "eletronicos", "relogio inteligente", "fone bluetooth", "cozinha", 
-        "organizador", "acessorios celular", "setup gamer", "achadinhos", "banheiro"
+        "organizador", "acessorios celular", "setup gamer", "achadinhos", "banheiro",
         "tecnologia", "moda", "kit camisa", "ferramentas úteis", "tênis esportivo", "celulares",
         "automóveis", "acessorios para casa", "objetos", "pet", "peças", "acessorios para veiculos"
     ];   
@@ -192,4 +192,4 @@ async function enviarTelegramComFoto(urlImagem, legenda, linkCurto) {
 }
 
 // Exportação obrigatória para o agendamento da Netlify
-module.exports.handler = schedule("0 * * * *", mineradorHandler);                                                    
+module.exports.handler = schedule("0 */2 * * *", mineradorHandler);                                                    
