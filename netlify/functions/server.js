@@ -184,6 +184,7 @@ async function enviarTelegramComFoto(urlImagem, legenda, linkCurto) {
               {
                 text: "🔥 COMPRAR AGORA",
                 url: linkCurto
+                style: "danger"
               }
             ]
           ]
