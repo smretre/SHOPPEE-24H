@@ -182,7 +182,7 @@ async function enviarTelegramComFoto(urlImagem, legenda, linkCurto) {
           inline_keyboard: [
             [
               {
-                text: "🔥 COMPRAR AGORA",
+                text: "🔥 COMPRAR AGORA 🛒",
                 url: linkCurto,
                 style: "danger"
               }
