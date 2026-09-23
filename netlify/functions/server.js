@@ -86,11 +86,64 @@ async function buscarOfertasEmAlta() {
     
     // Lista de termos para rotacionar os nichos do canal de achadinhos
     const temas = [
-        "eletronicos", "relogio inteligente", "fone bluetooth", "cozinha", 
-        "organizador", "acessorios celular", "setup gamer", "achadinhos", "banheiro",
-        "tecnologia", "moda", "kit camisa", "ferramentas úteis", "tênis esportivo", "celulares",
-        "automóveis", "acessorios para casa", "objetos", "pet", "peças", "acessorios para veiculos"
-    ];   
+    // --- ACHADINHOS & UTILIDADES VIRAIS (Alto Impulso) ---
+    "achadinhos da shopee",
+    "achadinhos uteis para casa",
+    "utensilios de cozinha criativos",
+    "mini processador de alimentos manual",
+    "organizador transparente acrilico",
+    "achadinhos para banheiro",
+    "suporte adesivo multiuso",
+    "varal portatil retratil",
+
+    // --- ELETRÔNICOS, ÁUDIO & SMARTVENDAS ---
+    "fone bluetooth tws",
+    "fone de ouvido gamer orelha de gato",
+    "relogio inteligente smartwatch",
+    "smartwatch ultra series",
+    "mini camuflada spy camera", // (ou mini camera portatil)
+    "ring light led de mesa",
+    "projetor portatil led",
+
+    // --- SETUP GAMER & TECNOLOGIA ---
+    "setup gamer barato",
+    "mouse gamer rgb",
+    "teclado mecanico compacto 60%",
+    "mousepad grande estampa mapa",
+    "headset gamer com microfone",
+    "suporte articulado para notebook",
+    "fita led rgb usb",
+    "hub usb 3.0 rapido",
+
+    // --- CELULARES & ACESSÓRIOS (Volume Gigante) ---
+    "capinha anti impacto transparente",
+    "pelicula de vidro 3d",
+    "carregador turbo tipo c",
+    "cabo carregador reforçado",
+    "suporte veicular magnetico celular",
+    "anel ring light para celular",
+    "lente portatil para celular",
+
+    // --- AUTOMOTIVO & FERRAMENTAS ---
+    "acessorios para veiculos",
+    "aspirador de po automotivo portatil",
+    "lampada led farol automotivo",
+    "ferramentas uteis para casa",
+    "mini lanterna led tcap",
+
+    // --- MODA, BELEZA & ESTILO ---
+    "tenis esportivo confortavel",
+    "kit camisa masculina basica",
+    "bolsa feminina transversal",
+    "oculos de sol tendencia",
+    "escova secadora rotativa",
+    "modelador de cachos automatico",
+
+    // --- PETS & OUTROS ---
+    "produtos inovadores para pets",
+    "comedouro lento para caes gatos",
+    "tapete higienico lavavel pet"
+];
     const termoSorteado = temas[Math.floor(Math.random() * temas.length)];
     console.log(`[Shopee] Buscando ofertas para a palavra-chave: "${termoSorteado}"`);
 
