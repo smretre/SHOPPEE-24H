@@ -89,27 +89,27 @@ async function buscarOfertasEmAlta() {
     // --- ACHADINHOS & UTILIDADES VIRAIS (Alto Impulso) ---
     "achadinhos da shopee",
     "achadinhos uteis para casa",
-    "utensilios de cozinha criativos",
-    "mini processador de alimentos manual",
+    "utensilios de cozinha",
+    "mini processador de alimentos",
     "organizador transparente acrilico",
     "achadinhos para banheiro",
     "suporte adesivo multiuso",
     "varal portatil retratil",
 
     // --- ELETRÔNICOS, ÁUDIO & SMARTVENDAS ---
-    "fone bluetooth tws",
+    "fone bluetooth",
     "fone de ouvido gamer orelha de gato",
     "relogio inteligente smartwatch",
     "smartwatch ultra series",
-    "mini camuflada spy camera", // (ou mini camera portatil)
-    "ring light led de mesa",
-    "projetor portatil led",
+    "mini camera portatil", // (ou mini camera portatil)
+    "led de mesa",
+    "projetor portatil",
 
     // --- SETUP GAMER & TECNOLOGIA ---
     "setup gamer barato",
     "mouse gamer rgb",
-    "teclado mecanico compacto 60%",
-    "mousepad grande estampa mapa",
+    "teclado mecanico compacto",
+    "mousepad grande",
     "headset gamer com microfone",
     "suporte articulado para notebook",
     "fita led rgb usb",
@@ -117,31 +117,36 @@ async function buscarOfertasEmAlta() {
 
     // --- CELULARES & ACESSÓRIOS (Volume Gigante) ---
     "capinha anti impacto transparente",
+    "acessorio para celulares",
     "pelicula de vidro 3d",
     "carregador turbo tipo c",
     "cabo carregador reforçado",
     "suporte veicular magnetico celular",
     "anel ring light para celular",
     "lente portatil para celular",
+    "iphone",
+    "celular samsung",
+    "celular xiaomi",
+    "celular redimi",
 
     // --- AUTOMOTIVO & FERRAMENTAS ---
     "acessorios para veiculos",
     "aspirador de po automotivo portatil",
     "lampada led farol automotivo",
     "ferramentas uteis para casa",
-    "mini lanterna led tcap",
+    "mini lanterna led",
 
     // --- MODA, BELEZA & ESTILO ---
-    "tenis esportivo confortavel",
-    "kit camisa masculina basica",
-    "bolsa feminina transversal",
-    "oculos de sol tendencia",
+    "tenis esportivo",
+    "kit camisa masculina",
+    "bolsa feminina",
+    "oculos de sol",
     "escova secadora rotativa",
     "modelador de cachos automatico",
 
     // --- PETS & OUTROS ---
-    "produtos inovadores para pets",
-    "comedouro lento para caes gatos",
+    "produtos para pets",
+    "comedouro para caes gatos",
     "tapete higienico lavavel pet"
 ];
     const termoSorteado = temas[Math.floor(Math.random() * temas.length)];
