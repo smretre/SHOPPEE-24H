@@ -86,7 +86,6 @@ async function buscarOfertasEmAlta() {
     
     // Lista de termos para rotacionar os nichos do canal de achadinhos
     const temas = [
-    // --- ACHADINHOS & UTILIDADES VIRAIS (Alto Impulso) ---
     "achadinhos da shopee",
     "achadinhos uteis para casa",
     "utensilios de cozinha",
@@ -95,17 +94,13 @@ async function buscarOfertasEmAlta() {
     "achadinhos para banheiro",
     "suporte adesivo multiuso",
     "varal portatil retratil",
-
-    // --- ELETRÔNICOS, ÁUDIO & SMARTVENDAS ---
     "fone bluetooth",
     "fone de ouvido gamer orelha de gato",
     "relogio inteligente smartwatch",
     "smartwatch ultra series",
-    "mini camera portatil", // (ou mini camera portatil)
+    "mini camera portatil",
     "led de mesa",
     "projetor portatil",
-
-    // --- SETUP GAMER & TECNOLOGIA ---
     "setup gamer barato",
     "mouse gamer rgb",
     "teclado mecanico compacto",
@@ -114,8 +109,6 @@ async function buscarOfertasEmAlta() {
     "suporte articulado para notebook",
     "fita led rgb usb",
     "hub usb 3.0 rapido",
-
-    // --- CELULARES & ACESSÓRIOS (Volume Gigante) ---
     "capinha anti impacto transparente",
     "acessorio para celulares",
     "pelicula de vidro 3d",
@@ -127,23 +120,17 @@ async function buscarOfertasEmAlta() {
     "celular samsung",
     "celular xiaomi",
     "celular redimi",
-
-    // --- AUTOMOTIVO & FERRAMENTAS ---
     "acessorios para veiculos",
     "aspirador de po portatil",
     "lampada led automotivo",
     "ferramentas uteis para casa",
     "mini lanterna led",
-
-    // --- MODA, BELEZA & ESTILO ---
     "tenis esportivo",
     "kit camisa masculina",
     "bolsa feminina",
     "oculos de sol",
     "escova secadora rotativa",
     "modelador de cachos automatico",
-
-    // --- PETS & OUTROS ---
     "produto para pets",
     "comedouro para caes e gatos",
     "tapete higienico lavavel pet"
