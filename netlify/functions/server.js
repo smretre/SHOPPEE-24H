@@ -122,7 +122,6 @@ async function buscarOfertasEmAlta() {
     "carregador turbo tipo c",
     "cabo carregador reforçado",
     "suporte veicular magnetico celular",
-    "anel ring light para celular",
     "lente portatil para celular",
     "iphone",
     "celular samsung",
@@ -131,8 +130,8 @@ async function buscarOfertasEmAlta() {
 
     // --- AUTOMOTIVO & FERRAMENTAS ---
     "acessorios para veiculos",
-    "aspirador de po automotivo portatil",
-    "lampada led farol automotivo",
+    "aspirador de po portatil",
+    "lampada led automotivo",
     "ferramentas uteis para casa",
     "mini lanterna led",
 
@@ -145,8 +144,8 @@ async function buscarOfertasEmAlta() {
     "modelador de cachos automatico",
 
     // --- PETS & OUTROS ---
-    "produtos para pets",
-    "comedouro para caes gatos",
+    "produto para pets",
+    "comedouro para caes e gatos",
     "tapete higienico lavavel pet"
 ];
     const termoSorteado = temas[Math.floor(Math.random() * temas.length)];
